@@ -1,19 +1,16 @@
+import * as BABYLON from "babylonjs";
 import {
-  Engine,
   Scene,
-  ArcRotateCamera,
-  HemisphericLight,
   Vector3,
   Mesh,
+  ArcRotateCamera,
+  HemisphericLight,
   MeshBuilder,
 } from "babylonjs";
 
 import { addLabelToMesh } from "./gui";
 
-var canvas: any = document.getElementById("renderCanvas");
-var engine: Engine = new Engine(canvas, true);
-
-function createScene(): Scene {
+export function myScene(engine: BABYLON.Engine, canvas): BABYLON.Scene {
   var scene: Scene = new Scene(engine);
   var camera: ArcRotateCamera = new ArcRotateCamera(
     "Camera",
@@ -34,7 +31,3 @@ function createScene(): Scene {
   addLabelToMesh(sphere);
   return scene;
 }
-var scene: Scene = createScene();
-engine.runRenderLoop(() => {
-  scene.render();
-});

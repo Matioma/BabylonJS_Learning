@@ -21,7 +21,8 @@
     "babylonjs": "^5.0.0-alpha.12",
     "babylonjs-gui": "^5.0.0-alpha.12",
     "babylonjs-loaders": "^5.0.0-alpha.12",
-    "babylonjs-materials": "^4.2.0"
+    "babylonjs-materials": "^4.2.0",
+    "express": "^4.17.1"
   },
   "devDependencies": {
     "ts-loader": "^8.0.17",

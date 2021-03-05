@@ -13,5 +13,5 @@
     "declaration": true,
     "outDir": "./"
   },
-  "files": ["src/index.ts"]
+  "files": ["app/src/index.ts"]
 }
