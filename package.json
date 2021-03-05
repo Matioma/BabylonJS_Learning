@@ -1,0 +1,32 @@
+{
+  "name": "babylonjs_learning",
+  "version": "1.0.0",
+  "description": "This repository show my self study process of BabylonJS, Html5 3D game framework.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "./node_modules/.bin/webpack"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Matioma/BabylonJS_Learning.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Matioma/BabylonJS_Learning/issues"
+  },
+  "homepage": "https://github.com/Matioma/BabylonJS_Learning#readme",
+  "dependencies": {
+    "babylonjs": "^5.0.0-alpha.12",
+    "babylonjs-gui": "^5.0.0-alpha.12",
+    "babylonjs-loaders": "^5.0.0-alpha.12",
+    "babylonjs-materials": "^4.2.0"
+  },
+  "devDependencies": {
+    "ts-loader": "^8.0.17",
+    "typescript": "^4.2.2",
+    "webpack": "^5.24.2",
+    "webpack-cli": "^4.5.0"
+  }
+}
