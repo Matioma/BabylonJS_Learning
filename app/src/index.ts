@@ -19,7 +19,6 @@ var engine: Engine = new Engine(canvas, true);
 var scene: Scene = myScene(engine, canvas);
 scene = chapter2(engine, canvas);
 
-console.log("AWESOME");
 engine.runRenderLoop(() => {
   scene.render();
 });

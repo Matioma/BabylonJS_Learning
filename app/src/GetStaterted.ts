@@ -27,6 +27,8 @@ export function chapter1(engine: Engine, canvas: any): Scene {
 }
 
 export function chapter2(engine: Engine, canvas: any): Scene {
+  console.log("AWESOME");
+
   const scene = new Scene(engine);
   const camera = new ArcRotateCamera(
     "camera",
@@ -38,8 +40,8 @@ export function chapter2(engine: Engine, canvas: any): Scene {
   );
   camera.attachControl(canvas, true);
   const light = new HemisphericLight("light", new Vector3(0, 1, 0), scene);
-  const box = MeshBuilder.CreateBox("box", {}, scene);
-  box.position.y = 0.5;
+  //const box = MeshBuilder.CreateBox("box", {}, scene);
+  //box.position.y = 0.5;
 
   const ground = BABYLON.MeshBuilder.CreateGround("ground", {
     width: 10,
@@ -54,6 +56,14 @@ export function chapter2(engine: Engine, canvas: any): Scene {
     {
       loop: true,
       autoplay: true,
+    }
+  );
+
+  BABYLON.SceneLoader.ImportMeshAsync("", "../Resources/", "scene.glb").then(
+    (result) => {
+      result.meshes[1].position.x = 20;
+      const myMesh_1 = scene.getMeshByName("myMesh_1");
+      myMesh_1.rotation.y = Math.PI / 2;
     }
   );
 
