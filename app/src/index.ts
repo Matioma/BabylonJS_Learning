@@ -9,15 +9,15 @@ import {
 } from "babylonjs";
 
 import { addLabelToMesh } from "./gui";
+// import BABYLON from "babylonjs";
 
-import { myScene } from "./firstScene";
+// import { myScene } from "./firstScene";
 import { chapter1, chapter2 } from "./GetStaterted";
 
 var canvas: any = document.getElementById("renderCanvas");
-var engine: Engine = new Engine(canvas, true);
+var engine: BABYLON.Engine = new BABYLON.Engine(canvas, true);
 
-var scene: Scene = myScene(engine, canvas);
-scene = chapter2(engine, canvas);
+var scene: BABYLON.Scene = chapter2(engine, canvas);
 
 engine.runRenderLoop(() => {
   scene.render();
