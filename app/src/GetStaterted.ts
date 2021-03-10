@@ -76,12 +76,6 @@ export function chapter2(engine: BABYLON.Engine, canvas: any): BABYLON.Scene {
 
   //http://localhost:3000/Resources/scene.glb
 
-  BABYLON.SceneLoader.ImportMeshAsync(
-    "",
-    "http://localhost:3000/Resources/scene.glb",
-    "scene.glb"
-  );
-
   const houses: Mesh[] = [];
 
   const house = BABYLON.MeshBuilder.CreateBox("House_Wall", {
@@ -119,9 +113,29 @@ export function chapter2(engine: BABYLON.Engine, canvas: any): BABYLON.Scene {
   const newHouse = fullhouse.createInstance("house");
   newHouse.position.x = 3;
 
+  const animCar = new BABYLON.Animation(
+    "carAnimMovement",
+    "position.z",
+    30,
+    BABYLON.Animation.ANIMATIONTYPE_FLOAT,
+    BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE
+  );
+  const carKeys = [];
+
+  carKeys.push({ frame: 0, value: -4 });
+  carKeys.push({ frame: 150, value: 0 });
+  carKeys.push({ frame: 210, value: 4 });
+  // carKeys.push({ frame: 270, value: -4 });
+
+  animCar.setKeys(carKeys);
+
   const car = buildCar(demoScene);
   car.position = new BABYLON.Vector3(0, 0.4, 0);
   car.scaling = new BABYLON.Vector3(0.5, 0.5, 0.5);
+
+  car.animations = [];
+  car.animations.push(animCar);
+  demoScene.beginAnimation(car, 0, 210, true);
 
   return demoScene;
 }
