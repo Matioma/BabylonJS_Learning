@@ -146,12 +146,30 @@ function buildCar(scene: BABYLON.Scene) {
   });
   car.material = carMaterial;
 
+  const animWheel = new BABYLON.Animation(
+    "WheelRotation",
+    "rotation.x",
+    30,
+    BABYLON.Animation.ANIMATIONTYPE_FLOAT,
+    BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE
+  );
+
+  const wheelKeys = [];
+  wheelKeys.push({ frame: 0, value: 0 });
+  wheelKeys.push({ frame: 30, value: 2 * Math.PI });
+
+  animWheel.setKeys(wheelKeys);
+
   const wheelRB = BABYLON.MeshBuilder.CreateCylinder("WheelRB", {
     diameter: 1,
     height: 0.2,
   });
+
+  wheelRB.animations = [];
+  wheelRB.animations.push(animWheel);
   wheelRB.material = wheelMaterial;
   wheelRB.rotation.z = Math.PI / 2;
+  scene.beginAnimation(wheelRB, 0, 30, true);
 
   wheelRB.parent = car;
   wheelRB.position.z = -0.5;
@@ -160,15 +178,18 @@ function buildCar(scene: BABYLON.Scene) {
 
   const wheelRF = wheelRB.createInstance("WheelRF");
   wheelRF.position.z = 0.5;
+  scene.beginAnimation(wheelRF, 0, 30, true);
   wheelRF.parent = car;
 
   const wheelLF = wheelRB.createInstance("WheelLF");
   wheelLF.position.z = 0.5;
   wheelLF.position.x = -0.6;
+  scene.beginAnimation(wheelLF, 0, 30, true);
   wheelLF.parent = car;
 
   const wheelLB = wheelRB.createInstance("WheelRF");
   wheelLB.position.x = -0.6;
+  scene.beginAnimation(wheelLB, 0, 30, true);
   wheelLB.parent = car;
 
   return car;
