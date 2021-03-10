@@ -113,9 +113,69 @@ export function chapter2(engine: BABYLON.Engine, canvas: any): BABYLON.Scene {
     false,
     true
   );
+  fullhouse.position.x = -2;
+  fullhouse.position.z = 5;
 
   const newHouse = fullhouse.createInstance("house");
   newHouse.position.x = 3;
 
+  const car = buildCar();
+  car.position = new BABYLON.Vector3(0, 0.4, 0);
+  car.scaling = new BABYLON.Vector3(0.5, 0.5, 0.5);
+
   return demoScene;
+}
+
+function buildCar() {
+  const outline = [
+    new BABYLON.Vector3(-0.3, 0, -0.1),
+    new BABYLON.Vector3(0.2, 0, -0.1),
+  ];
+
+  //curved front
+  for (let i = 0; i < 20; i++) {
+    outline.push(
+      new BABYLON.Vector3(
+        0.2 * Math.cos((i * Math.PI) / 40),
+        0,
+        0.2 * Math.sin((i * Math.PI) / 40) - 0.1
+      )
+    );
+  }
+
+  //top
+  outline.push(new BABYLON.Vector3(0, 0, 0.1));
+  outline.push(new BABYLON.Vector3(-0.3, 0, 0.1));
+
+  const car = BABYLON.MeshBuilder.CreateBox("Body", {
+    width: 1,
+    depth: 2,
+    height: 1,
+  });
+
+  const wheelRB = BABYLON.MeshBuilder.CreateCylinder("WheelRB", {
+    diameter: 1,
+    height: 0.2,
+  });
+  wheelRB.rotation.z = Math.PI / 2;
+
+  wheelRB.parent = car;
+  wheelRB.position.z = -0.5;
+  wheelRB.position.x = 0.6;
+  wheelRB.position.y = -0.5;
+
+  const wheelRF = wheelRB.createInstance("WheelRF");
+  wheelRF.position.z = 0.5;
+  wheelRF.parent = car;
+
+  const wheelLF = wheelRB.createInstance("WheelLF");
+  wheelLF.position.z = 0.5;
+  wheelLF.position.x = -0.6;
+  wheelLF.parent = car;
+
+  const wheelLB = wheelRB.createInstance("WheelRF");
+  wheelLB.position.x = -0.6;
+  wheelLB.parent = car;
+
+  return car;
 }
