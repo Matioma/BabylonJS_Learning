@@ -74,6 +74,14 @@ export function chapter2(engine: BABYLON.Engine, canvas: any): BABYLON.Scene {
   faceUV[2] = new BABYLON.Vector4(0.25, 0, 0.5, 1.0); //right side
   faceUV[3] = new BABYLON.Vector4(0.75, 0, 1.0, 1.0); //left side
 
+  //http://localhost:3000/Resources/scene.glb
+
+  BABYLON.SceneLoader.ImportMeshAsync(
+    "",
+    "http://localhost:3000/Resources/scene.glb",
+    "scene.glb"
+  );
+
   const houses: Mesh[] = [];
 
   const house = BABYLON.MeshBuilder.CreateBox("House_Wall", {
@@ -96,6 +104,18 @@ export function chapter2(engine: BABYLON.Engine, canvas: any): BABYLON.Scene {
   roof.material = roofMaterial;
 
   ground.material = groundMaterial;
+
+  const fullhouse = BABYLON.Mesh.MergeMeshes(
+    [house, roof],
+    true,
+    false,
+    null,
+    false,
+    true
+  );
+
+  const newHouse = fullhouse.createInstance("house");
+  newHouse.position.x = 3;
 
   return demoScene;
 }
