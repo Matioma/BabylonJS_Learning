@@ -119,44 +119,38 @@ export function chapter2(engine: BABYLON.Engine, canvas: any): BABYLON.Scene {
   const newHouse = fullhouse.createInstance("house");
   newHouse.position.x = 3;
 
-  const car = buildCar();
+  const car = buildCar(demoScene);
   car.position = new BABYLON.Vector3(0, 0.4, 0);
   car.scaling = new BABYLON.Vector3(0.5, 0.5, 0.5);
 
   return demoScene;
 }
 
-function buildCar() {
-  const outline = [
-    new BABYLON.Vector3(-0.3, 0, -0.1),
-    new BABYLON.Vector3(0.2, 0, -0.1),
-  ];
+function buildCar(scene: BABYLON.Scene) {
+  const wheelMaterial = new BABYLON.StandardMaterial("WheelMAt", scene);
+  wheelMaterial.diffuseTexture = new BABYLON.Texture(
+    "https://assets.babylonjs.com/environments/wheel.png",
+    scene
+  );
 
-  //curved front
-  for (let i = 0; i < 20; i++) {
-    outline.push(
-      new BABYLON.Vector3(
-        0.2 * Math.cos((i * Math.PI) / 40),
-        0,
-        0.2 * Math.sin((i * Math.PI) / 40) - 0.1
-      )
-    );
-  }
-
-  //top
-  outline.push(new BABYLON.Vector3(0, 0, 0.1));
-  outline.push(new BABYLON.Vector3(-0.3, 0, 0.1));
+  const carMaterial = new BABYLON.StandardMaterial("carMaterial", scene);
+  carMaterial.diffuseTexture = new BABYLON.Texture(
+    "https://assets.babylonjs.com/environments/car.png",
+    scene
+  );
 
   const car = BABYLON.MeshBuilder.CreateBox("Body", {
     width: 1,
     depth: 2,
     height: 1,
   });
+  car.material = carMaterial;
 
   const wheelRB = BABYLON.MeshBuilder.CreateCylinder("WheelRB", {
     diameter: 1,
     height: 0.2,
   });
+  wheelRB.material = wheelMaterial;
   wheelRB.rotation.z = Math.PI / 2;
 
   wheelRB.parent = car;
