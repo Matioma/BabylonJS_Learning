@@ -1,17 +1,12 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "es6",
     "module": "commonjs",
     "noResolve": false,
     "noImplicitAny": false,
-    "removeComments": true,
-    "preserveConstEnums": true,
     "sourceMap": true,
-    "experimentalDecorators": true,
-    "isolatedModules": false,
-    "lib": ["dom", "es2015.promise", "es5"],
-    "declaration": true,
-    "outDir": "./"
-  },
-  "files": ["app/src/index.ts"]
+    "preserveConstEnums": true,
+    "lib": ["dom", "es6"],
+    "rootDir": "src"
+  }
 }
