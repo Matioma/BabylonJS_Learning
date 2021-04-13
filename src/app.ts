@@ -23,6 +23,7 @@ import {
 import { AdvancedDynamicTextureTreeItemComponent } from "@babylonjs/inspector/components/sceneExplorer/entities/gui/advancedDynamicTextureTreeItemComponent";
 import { Environment } from "./environment";
 import { Player } from "./player";
+import { InputController } from "./inputController";
 
 enum State {
   START = 0,
@@ -46,6 +47,8 @@ class App {
 
   private _environment: Environment;
 
+  private _input: InputController;
+
   _createCanvas(): HTMLCanvasElement {
     let canvas = document.createElement("canvas");
     canvas.style.width = "100%";
@@ -56,19 +59,19 @@ class App {
     return canvas;
   }
 
-  _input() {
-    //hide/show the Inspector
-    window.addEventListener("keydown", (ev) => {
-      // Shift+Ctrl+Alt+I
-      if (ev.shiftKey && ev.ctrlKey && ev.altKey && ev.keyCode === 73) {
-        if (this._scene.debugLayer.isVisible()) {
-          this._scene.debugLayer.hide();
-        } else {
-          this._scene.debugLayer.show();
-        }
-      }
-    });
-  }
+  // _input() {
+  //   //hide/show the Inspector
+  //   window.addEventListener("keydown", (ev) => {
+  //     // Shift+Ctrl+Alt+I
+  //     if (ev.shiftKey && ev.ctrlKey && ev.altKey && ev.keyCode === 73) {
+  //       if (this._scene.debugLayer.isVisible()) {
+  //         this._scene.debugLayer.hide();
+  //       } else {
+  //         this._scene.debugLayer.show();
+  //       }
+  //     }
+  //   });
+  // }
 
   async _goToStart() {
     this._engine.displayLoadingUI();
@@ -341,7 +344,12 @@ class App {
     const shadowGenerator = new ShadowGenerator(1024, light);
     shadowGenerator.darkness = 0.4;
 
-    this.__player = new Player(this.assets, scene, shadowGenerator);
+    this.__player = new Player(
+      this.assets,
+      scene,
+      shadowGenerator,
+      this._input
+    );
   }
   constructor() {
     this._canvas = this._createCanvas();
@@ -349,7 +357,7 @@ class App {
     this._engine = new Engine(this._canvas, true);
     this._scene = new Scene(this._engine);
 
-    this._input();
+    // this._input();
 
     this._main();
   }
