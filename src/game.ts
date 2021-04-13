@@ -7,11 +7,14 @@ import {
   Scene,
   Vector3,
 } from "@babylonjs/core";
+import { PlayerController } from "./playerController";
 
 class Game {
   private _canvas: HTMLCanvasElement;
   private _engine: Engine;
   private _scene: Scene;
+
+  private _playerController: PlayerController;
 
   constructor() {
     this.Start();
@@ -51,6 +54,7 @@ class Game {
       { diameter: 1 },
       scene
     );
+    this._playerController = new PlayerController(scene);
 
     return scene;
   }
