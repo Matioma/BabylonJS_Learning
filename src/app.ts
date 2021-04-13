@@ -12,8 +12,17 @@ import {
   MeshBuilder,
   Color4,
   FreeCamera,
+  EnvironmentHelper,
+  Matrix,
+  Quaternion,
+  StandardMaterial,
+  Color3,
+  PointLight,
+  ShadowGenerator,
 } from "@babylonjs/core";
 import { AdvancedDynamicTextureTreeItemComponent } from "@babylonjs/inspector/components/sceneExplorer/entities/gui/advancedDynamicTextureTreeItemComponent";
+import { Environment } from "./environment";
+import { Player } from "./player";
 
 enum State {
   START = 0,
@@ -31,6 +40,11 @@ class App {
   private _gamescene: Scene;
 
   private _state: State = State.START;
+
+  private assets;
+  private __player: Player;
+
+  private _environment: Environment;
 
   _createCanvas(): HTMLCanvasElement {
     let canvas = document.createElement("canvas");
@@ -150,16 +164,6 @@ class App {
       0.01568627450980392,
       0.20392156862745098
     );
-    let camera: ArcRotateCamera = new ArcRotateCamera(
-      "Camera",
-      Math.PI / 2,
-      Math.PI / 2,
-      2,
-      Vector3.Zero(),
-      scene
-    );
-    camera.setTarget(Vector3.Zero());
-    camera.attachControl(this._canvas, true);
 
     const playerUI = AdvancedDynamicTexture.CreateFullscreenUI("UI");
     //scene.detachControl();
@@ -183,26 +187,94 @@ class App {
       new Vector3(1, 1, 0),
       scene
     );
-    var sphere: Mesh = MeshBuilder.CreateSphere(
-      "sphere",
-      { diameter: 1 },
-      scene
-    );
+
+    await this._initlizeGameAsync(scene);
 
     await scene.whenReadyAsync();
+    scene.getMeshByName("outer").position = new Vector3(0, 3, 0);
 
     this._scene.dispose();
     this._scene = scene;
     this._state = State.GAME;
 
     this._engine.hideLoadingUI();
-
     this._scene.attachControl();
   }
 
   async _setUpGame() {
     let scene = new Scene(this._engine);
     this._gamescene = scene;
+
+    const environment = new Environment(scene);
+    this._environment = environment;
+    environment.load();
+
+    await this._loadCharacterAssets(scene);
+  }
+
+  async _loadCharacterAssets(scene: Scene) {
+    async function loadCharacter() {
+      const outer = MeshBuilder.CreateBox(
+        "outer",
+        {
+          width: 2,
+          depth: 1,
+          height: 3,
+        },
+        scene
+      );
+      outer.isVisible = false;
+      outer.isPickable = false;
+      outer.checkCollisions = true;
+      outer.bakeTransformIntoVertices(Matrix.Translation(0, 1.5, 0));
+
+      outer.ellipsoid = new Vector3(1, 1.5, 1);
+      outer.ellipsoidOffset = new Vector3(0, 1.5, 0);
+      outer.rotationQuaternion = new Quaternion(0, 1, 0, 0);
+
+      var box = MeshBuilder.CreateBox(
+        "small1",
+        {
+          width: 0.5,
+          depth: 0.5,
+          height: 0.25,
+          faceColors: [
+            new Color4(0, 0, 0, 1),
+            new Color4(0, 0, 0, 1),
+            new Color4(0, 0, 0, 1),
+            new Color4(0, 0, 0, 1),
+            new Color4(0, 0, 0, 1),
+            new Color4(0, 0, 0, 1),
+          ],
+        },
+        scene
+      );
+
+      box.position.y = 1.5;
+      box.position.z = 1;
+
+      var body = MeshBuilder.CreateCylinder(
+        "body",
+        { height: 3, diameter: 2, tessellation: 2 },
+        scene
+      );
+      var bodyMtl = new StandardMaterial("red", scene);
+      bodyMtl.diffuseColor = new Color3(0.8, 0.5, 0.5);
+      body.material = bodyMtl;
+      body.isPickable = false;
+      body.bakeTransformIntoVertices(Matrix.Translation(0, 1.5, 0));
+
+      box.parent = body;
+      body.parent = outer;
+
+      return {
+        mesh: outer as Mesh,
+      };
+    }
+
+    return loadCharacter().then((assets) => {
+      this.assets = assets;
+    });
   }
 
   private async _goToLose() {
@@ -242,26 +314,34 @@ class App {
     await this._goToStart();
 
     this._engine.runRenderLoop(() => {
-      switch (this._state) {
-        case State.START:
-          this._scene.render();
-        case State.CUTSCENE:
-          this._scene.render();
-          break;
-        case State.GAME:
-          this._scene.render();
-          break;
-        case State.LOSE:
-          this._scene.render();
-          break;
-        default:
-          break;
-      }
+      this._scene.render();
     });
 
     window.addEventListener("resize", () => {
       this._engine.resize();
     });
+  }
+
+  private async _initlizeGameAsync(scene): Promise<void> {
+    var light0 = new HemisphericLight(
+      "hemisphericLight",
+      new Vector3(0, 1, 0),
+      scene
+    );
+
+    const light = new PointLight("sparkLight", new Vector3(0, 0, 0), scene);
+    light.diffuse = new Color3(
+      0.08627450980392157,
+      0.10980392156862745,
+      0.15294117647058825
+    );
+    light.intensity = 35;
+    light.radius = 1;
+
+    const shadowGenerator = new ShadowGenerator(1024, light);
+    shadowGenerator.darkness = 0.4;
+
+    this.__player = new Player(this.assets, scene, shadowGenerator);
   }
   constructor() {
     this._canvas = this._createCanvas();
@@ -272,33 +352,6 @@ class App {
     this._input();
 
     this._main();
-    // var camera: ArcRotateCamera = new ArcRotateCamera(
-    //   "Camera",
-    //   Math.PI / 2,
-    //   Math.PI / 2,
-    //   2,
-    //   Vector3.Zero(),
-    //   this._scene
-    // );
-    // camera.attachControl(this._canvas, true);
-    // var light1: HemisphericLight = new HemisphericLight(
-    //   "light1",
-    //   new Vector3(1, 1, 0),
-    //   this._scene
-    // );
-    // var sphere: Mesh = MeshBuilder.CreateSphere(
-    //   "sphere",
-    //   { diameter: 1 },
-    //   this._scene
-    // );
-
-    // this._input();
-
-    // this._goToStart();
-
-    // this._engine.runRenderLoop(() => {
-    //   this._scene.render();
-    // });
   }
 }
 new App();
