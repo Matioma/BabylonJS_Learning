@@ -24,22 +24,10 @@ export class MyFollowCamera extends TransformNode {
     scene.registerBeforeRender(() => {
       this.update();
     });
-    // scene.onBeforeRenderObservable.add(() => {
-    //   this.update();
-    // });
   }
 
   update(): void {
     let newPosition: Vector3 = this._target.position.add(this._offset);
-
-    //this.position = newPosition;
-
-    // console.log(this._target.position.x);
-    // console.log(this._target.position.y);
-    // console.log(this.position.z);
-
-    //this.position.x = this._target.position.x;
-    // this.position.y = this._target.position.y;
 
     this.position = Vector3.Lerp(this.position, newPosition, 0.25);
   }

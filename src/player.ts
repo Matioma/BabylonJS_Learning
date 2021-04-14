@@ -1,6 +1,7 @@
 import {
   ArcRotateCamera,
   Mesh,
+  Ray,
   Scene,
   ShadowGenerator,
   TransformNode,
@@ -11,11 +12,16 @@ import {
 export class Player extends TransformNode {
   private mesh: Mesh;
   private speed: number = 5;
+
   constructor(assets, scene: Scene) {
     super("player", scene);
 
     this.mesh = assets;
     this.mesh.parent = this;
+
+    this._scene.onBeforeRenderObservable.add(() => {
+      console.log(this._isGrounded());
+    });
   }
 
   public MovePlayer(direction: Vector3): void {
@@ -27,68 +33,29 @@ export class Player extends TransformNode {
       .multiplyByFloats(deltaVelocity, deltaVelocity, deltaVelocity);
     this.position.addInPlace(offset);
   }
+
+  public MovePlayerWithCollision(): void {}
+
+  public rayCast(start: Vector3, end: Vector3, length: number) {
+    let ray = new Ray(start, end.subtract(start).normalizeToNew(), length);
+
+    let predicate = function (mesh: Mesh) {
+      return mesh.isPickable && mesh.isEnabled();
+    };
+
+    let pick = this._scene.pickWithRay(ray, predicate);
+
+    if (pick.hit) {
+      return pick.pickedPoint;
+    } else {
+      return null;
+    }
+  }
+
+  private _isGrounded(): boolean {
+    if (this.rayCast(this.position, Vector3.Down(), 1) != null) {
+      return true;
+    }
+    return false;
+  }
 }
-
-// export class Player extends TransformNode {
-//   private static readonly ORIGINAL_TILT: Vector3 = new Vector3(
-//     0.5934119456780721,
-//     0,
-//     0
-//   );
-
-//   private _yTilt;
-
-//   public camera: UniversalCamera;
-
-//   public scene: Scene;
-
-//   private _input;
-//   public mesh: Mesh;
-
-//   private _camRoot;
-
-//   constructor(assets, scene: Scene, shadowGenerator: ShadowGenerator, input?) {
-//     super("player", scene);
-//     this.scene = scene;
-//     this._setupPlayerCamera();
-
-//     this.mesh = assets.mesh;
-//     this.mesh.parent = this;
-
-//     shadowGenerator.addShadowCaster(assets.mesh);
-//     this._input = input;
-//   }
-
-//   _setupPlayerCamera(): UniversalCamera {
-//     this._camRoot = new TransformNode("root");
-//     this._camRoot.position = new Vector3(0, 0, 0);
-//     this._camRoot.rotation = new Vector3(0, Math.PI, 0);
-
-//     let yTilt = new TransformNode("ytilt");
-//     yTilt.rotation = Player.ORIGINAL_TILT;
-
-//     this._yTilt = yTilt;
-//     yTilt.parent = this._camRoot;
-
-//     this.camera = new UniversalCamera(
-//       "cam",
-//       new Vector3(0, 0, -30),
-//       this.scene
-//     );
-//     this.camera.lockedTarget = this._camRoot.position;
-//     this.camera.fov = 0.47350045992678597;
-//     this.camera.parent = yTilt;
-
-//     this.scene.activeCamera = this.camera;
-//     return this.camera;
-//   }
-
-//   private _updateCamera(): void {
-//     let cameraPlayer: number = this.mesh.position.y + 2;
-//     this._camRoot.position = Vector3.Lerp(
-//       this._camRoot.position,
-//       new Vector3(this.mesh.position.x, cameraPlayer, this.mesh.position.z),
-//       0.4
-//     );
-//   }
-// }

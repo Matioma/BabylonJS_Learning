@@ -75,6 +75,7 @@ class Game {
       { width: 10, height: 10 },
       scene
     );
+    ground.isPickable = true;
 
     await ResourseManager.LoadCharacterAssets(scene).then((mesh) => {
       this._player = new Player(mesh, scene);
