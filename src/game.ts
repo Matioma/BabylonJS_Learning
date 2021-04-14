@@ -78,6 +78,7 @@ class Game {
     await ResourseManager.LoadCharacterAssets(scene).then((mesh) => {
       this._player = new Player(mesh, scene);
     });
+
     this._playerController = new PlayerController(this._player, scene);
 
     return scene;

@@ -11,10 +11,12 @@ export class PlayerController {
   public InputMap: any;
 
   private _player: Player;
+  private _scene: Scene;
 
   constructor(player: Player, scene: Scene) {
     scene.actionManager = new ActionManager(scene);
     this._player = player;
+    this._scene = scene;
 
     this.InputMap = {};
 
@@ -39,21 +41,23 @@ export class PlayerController {
 
   private processInput(): void {
     if (this.InputMap["ArrowUp"]) {
-      // this._player.position.z += 10;
-      // this._player.MoveMesh(new Vector3(0, 0, 10));
+      //this._player.position.z += 10;
+      this._player.MovePlayer(new Vector3(0, 0, 10));
     }
     if (this.InputMap["ArrowDown"]) {
-      this._player.position.z -= 10;
-      console.log(this._player.position);
+      //this._player.position.z -= 10;
+      this._player.MovePlayer(new Vector3(0, 0, -10));
     }
 
     if (this.InputMap["ArrowLeft"]) {
-      this._player.position.x -= 10;
-      console.log(this._player.position);
+      //this._player.position.x -= 10;
+      // console.log(this._player.position);
+      this._player.MovePlayer(new Vector3(-10, 0, 0));
     }
     if (this.InputMap["ArrowRight"]) {
-      this._player.position.x += 10;
-      console.log(this._player.position);
+      //this._player.position.x += 10;
+      // console.log(this._player.position);
+      this._player.MovePlayer(new Vector3(10, 0, 0));
     }
   }
 }

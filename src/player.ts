@@ -10,18 +10,27 @@ import {
 
 export class Player extends TransformNode {
   private mesh: Mesh;
-  private speed: number;
+  private speed: number = 1;
+
+  // private _scene: Scene;
 
   constructor(assets, scene: Scene) {
     super("player", scene);
+
+    //this._scene = scene;
 
     this.mesh = assets;
     this.mesh.parent = this;
   }
 
-  MoveMesh(direction: Vector3) {
-    //this.position.add(direction);
-    // this.mesh.position.add(direction);
+  public MovePlayer(direction: Vector3): void {
+    let delta: number = this._scene.getEngine().getDeltaTime() / 1000;
+    let deltaVelocity = delta * this.speed;
+
+    let offset: Vector3 = direction
+      .normalize()
+      .multiplyByFloats(deltaVelocity, deltaVelocity, deltaVelocity);
+    this.position.addInPlace(offset);
   }
 }
 
