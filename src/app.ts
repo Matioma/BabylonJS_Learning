@@ -344,12 +344,12 @@ class App {
     const shadowGenerator = new ShadowGenerator(1024, light);
     shadowGenerator.darkness = 0.4;
 
-    this.__player = new Player(
-      this.assets,
-      scene,
-      shadowGenerator,
-      this._input
-    );
+    // this.__player = new Player(
+    //   this.assets,
+    //   scene,
+    //   shadowGenerator,
+    //   this._input
+    // );
   }
   constructor() {
     this._canvas = this._createCanvas();

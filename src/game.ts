@@ -1,13 +1,18 @@
 import {
   ArcRotateCamera,
   Engine,
+  FreeCamera,
   HemisphericLight,
   Mesh,
   MeshBuilder,
   Scene,
   Vector3,
 } from "@babylonjs/core";
+import { Player } from "./player";
 import { PlayerController } from "./playerController";
+import { ResourseManager } from "./ResourceManager";
+import "@babylonjs/core/Debug/debugLayer";
+import "@babylonjs/inspector";
 
 class Game {
   private _canvas: HTMLCanvasElement;
@@ -15,23 +20,38 @@ class Game {
   private _scene: Scene;
 
   private _playerController: PlayerController;
+  private _player: Player;
 
   constructor() {
     this.Start();
+
+    // hide/show the Inspector
+    window.addEventListener("keydown", (ev) => {
+      // Shift+Ctrl+Alt+I
+      if (ev.shiftKey && ev.ctrlKey && ev.altKey && ev.keyCode === 73) {
+        if (this._scene.debugLayer.isVisible()) {
+          this._scene.debugLayer.hide();
+        } else {
+          this._scene.debugLayer.show();
+        }
+      }
+    });
     console.log("COOl");
   }
 
-  Start() {
+  async Start() {
     this._canvas = this._createCanvas();
     this._engine = new Engine(this._canvas, true);
-    this._scene = this._createScene();
+    await this._createScene().then((scene) => {
+      this._scene = scene;
+    });
 
     this._engine.runRenderLoop(() => {
       this._scene.render();
     });
   }
 
-  _createScene(): Scene {
+  async _createScene(): Promise<Scene> {
     let scene: Scene = new Scene(this._engine);
 
     var camera: ArcRotateCamera = new ArcRotateCamera(
@@ -49,12 +69,16 @@ class Game {
       new Vector3(1, 1, 0),
       scene
     );
-    var sphere: Mesh = MeshBuilder.CreateSphere(
-      "sphere",
-      { diameter: 1 },
+    var ground: Mesh = MeshBuilder.CreateGround(
+      "Ground",
+      { width: 10, height: 10 },
       scene
     );
-    this._playerController = new PlayerController(scene);
+
+    await ResourseManager.LoadCharacterAssets(scene).then((mesh) => {
+      this._player = new Player(mesh, scene);
+    });
+    this._playerController = new PlayerController(this._player, scene);
 
     return scene;
   }

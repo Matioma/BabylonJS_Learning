@@ -3,13 +3,18 @@ import {
   ActionManager,
   ExecuteCodeAction,
   Scene,
+  Vector3,
 } from "@babylonjs/core";
+import { Player } from "./player";
 
 export class PlayerController {
   public InputMap: any;
 
-  constructor(scene: Scene) {
+  private _player: Player;
+
+  constructor(player: Player, scene: Scene) {
     scene.actionManager = new ActionManager(scene);
+    this._player = player;
 
     this.InputMap = {};
 
@@ -34,7 +39,21 @@ export class PlayerController {
 
   private processInput(): void {
     if (this.InputMap["ArrowUp"]) {
-      console.log("ArrowUp pressed");
+      // this._player.position.z += 10;
+      // this._player.MoveMesh(new Vector3(0, 0, 10));
+    }
+    if (this.InputMap["ArrowDown"]) {
+      this._player.position.z -= 10;
+      console.log(this._player.position);
+    }
+
+    if (this.InputMap["ArrowLeft"]) {
+      this._player.position.x -= 10;
+      console.log(this._player.position);
+    }
+    if (this.InputMap["ArrowRight"]) {
+      this._player.position.x += 10;
+      console.log(this._player.position);
     }
   }
 }
