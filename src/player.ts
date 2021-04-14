@@ -10,14 +10,9 @@ import {
 
 export class Player extends TransformNode {
   private mesh: Mesh;
-  private speed: number = 1;
-
-  // private _scene: Scene;
-
+  private speed: number = 5;
   constructor(assets, scene: Scene) {
     super("player", scene);
-
-    //this._scene = scene;
 
     this.mesh = assets;
     this.mesh.parent = this;

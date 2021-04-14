@@ -13,6 +13,7 @@ import { PlayerController } from "./playerController";
 import { ResourseManager } from "./ResourceManager";
 import "@babylonjs/core/Debug/debugLayer";
 import "@babylonjs/inspector";
+import { MyFollowCamera } from "./FollowCamera";
 
 class Game {
   private _canvas: HTMLCanvasElement;
@@ -54,15 +55,15 @@ class Game {
   async _createScene(): Promise<Scene> {
     let scene: Scene = new Scene(this._engine);
 
-    var camera: ArcRotateCamera = new ArcRotateCamera(
-      "Camera",
-      Math.PI / 2,
-      Math.PI / 2,
-      2,
-      Vector3.Zero(),
-      scene
-    );
-    camera.attachControl(this._canvas, true);
+    // var camera: ArcRotateCamera = new ArcRotateCamera(
+    //   "Camera",
+    //   Math.PI / 2,
+    //   Math.PI / 2,
+    //   2,
+    //   Vector3.Zero(),
+    //   scene
+    // );
+    // camera.attachControl(this._canvas, true);
 
     var light1: HemisphericLight = new HemisphericLight(
       "light1",
@@ -77,6 +78,13 @@ class Game {
 
     await ResourseManager.LoadCharacterAssets(scene).then((mesh) => {
       this._player = new Player(mesh, scene);
+
+      let camera = new MyFollowCamera(
+        this._player,
+        new Vector3(0, 2, -10),
+        scene
+      );
+      // camera.position = new Vector3(0, 2, -10);
     });
 
     this._playerController = new PlayerController(this._player, scene);
