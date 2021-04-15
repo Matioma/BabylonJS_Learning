@@ -1,6 +1,8 @@
 import {
   ArcRotateCamera,
   Mesh,
+  MeshBuilder,
+  PhysicsJoint,
   Ray,
   Scene,
   ShadowGenerator,
@@ -8,20 +10,170 @@ import {
   UniversalCamera,
   Vector3,
 } from "@babylonjs/core";
+import { ThinTexture } from "@babylonjs/core/Materials/Textures/thinTexture";
+import { NodeMaterialPropertyGridComponent } from "@babylonjs/inspector/components/actionTabs/tabs/propertyGrids/materials/nodeMaterialPropertyGridComponent";
 
-export class Player extends TransformNode {
+export class Player extends Mesh {
+  private boxCollider: Mesh;
   private mesh: Mesh;
-  private speed: number = 5;
+  private speed: number = 9;
 
-  constructor(assets, scene: Scene) {
-    super("player", scene);
+  static JUMP_FORCE: number = 5;
+  static GRAVITY_ACCELERATION: number = 9;
+
+  private drag: number = 0.95;
+
+  private direction: Vector3 = Vector3.Zero();
+  private velocity: Vector3 = Vector3.Zero();
+
+  constructor(assets, scene: Scene, collider: Mesh) {
+    super("player", scene, null, collider);
+
+    this.position = new Vector3(0, 2, 0);
+
+    this.visibility = 0;
+    this.isPickable = true;
+    this.checkCollisions = true;
+    // this.boxCollider = MeshBuilder.CreateBox(
+    //   "BoxCollider",
+    //   { width: 1, height: 1, depth: 1 },
+    //   scene
+    // );
+
+    //this;
+
+    // this.mesh = MeshBuilder.CreateBox(
+    //   "BoxCollider",
+    //   { width: 1, height: 1, depth: 1 },
+    //   scene
+    // );
+
+    // this.boxCollider.visibility = 1;
+    // this.boxCollider.isPickable = true;
+    // this.boxCollider.parent = this;
+
+    // this.boxCollider.ellipsoid = new Vector3(1, 1, 1);
+    // this.boxCollider.checkCollisions = true;
 
     this.mesh = assets;
     this.mesh.parent = this;
 
     this._scene.onBeforeRenderObservable.add(() => {
-      console.log(this._isGrounded());
+      this.updatePlayerPosition();
     });
+  }
+
+  public updatePlayerPosition(): void {
+    let delta = this._scene.deltaTime / 1000;
+    this.ApplyGravity();
+    this.moveWithCollisions(
+      this.velocity.multiplyByFloats(delta, delta, delta)
+    );
+
+    this.velocity = this.velocity.multiplyByFloats(
+      this.drag,
+      this.drag,
+      this.drag
+    );
+
+    // this.position = this.boxCollider.position.clone();
+    // this.boxCollider.position = Vector3.Zero();
+
+    this.direction = Vector3.Zero();
+
+    // let raycastResult = this.rayCast(
+    //   this.position,
+    //   Vector3.Down(),
+    //   this.boxCollider._boundingInfo.boundingBox.extendSizeWorld.y / 2
+    // );
+
+    // if (raycastResult != null && this.velocity.y <= 0) {
+    //   let normal = raycastResult.getNormal();
+    //   if (this.boxCollider.intersectsMesh(raycastResult.pickedMesh)) {
+    //     this.boxCollider.position.addInPlace(normal);
+    //   }
+    //   this.velocity.y = 0;
+    //   console.log(this.position.y);
+    // }
+
+    // this.position = this.boxCollider.position;
+    // this.boxCollider.position = Vector3.Zero();
+
+    // console.log(this._isGrounded());
+    // if (this._isGrounded() && this.velocity.y < 0) {
+    //   this.velocity.y = 0;
+    // }
+
+    // this.boxCollider.moveWithCollisions(this.velocity);
+    // this.position = this.boxCollider.position;
+    // this.boxCollider.position = Vector3.Zero();
+
+    // this.position.addInPlace(this.velocity);
+  }
+
+  public Jump(): void {
+    this.velocity.addInPlace(
+      Vector3.Up().multiplyByFloats(
+        Player.JUMP_FORCE,
+        Player.JUMP_FORCE,
+        Player.JUMP_FORCE
+      )
+    );
+  }
+
+  public ApplyGravity() {
+    let delta: number = this._scene.getEngine().getDeltaTime() / 1000;
+
+    let velocityChange = Player.GRAVITY_ACCELERATION * delta;
+
+    let gravitationVelocity = Vector3.Down().multiplyByFloats(
+      velocityChange,
+      velocityChange,
+      velocityChange
+    );
+    console.log(gravitationVelocity);
+
+    this.velocity.addInPlace(gravitationVelocity);
+  }
+
+  public AddVelocity(direction: Vector3) {
+    this.direction = this.direction.add(direction).normalize();
+
+    console.log(this.direction);
+
+    let XZPlane = new Vector3(this.direction.x, 0, this.direction.z); //direction ignoring Y Axis\
+    let XZPlaneVelocity = XZPlane.multiplyByFloats(
+      this.speed,
+      this.speed,
+      this.speed
+    );
+
+    this.velocity = new Vector3(0, this.velocity.y, 0).addInPlaceFromFloats(
+      XZPlaneVelocity.x,
+      0,
+      XZPlaneVelocity.z
+    );
+
+    // let addVelocity = direction
+    //   .normalizeToNew()
+    //   .multiplyByFloats(this.speed, this.speed, this.speed);
+
+    // this.velocity.addInPlace(addVelocity);
+
+    // let XZPlaneSpeed = new Vector3(this.velocity.x, 0, this.velocity.y);
+    // XZPlaneSpeed.normalize().multiplyByFloats(
+    //   this.speed,
+    //   this.speed,
+    //   this.speed
+    // );
+
+    // this.velocity = new Vector3(
+    //   XZPlaneSpeed.x,
+    //   this.velocity.y,
+    //   XZPlaneSpeed.z
+    // );
+
+    console.log(this.velocity);
   }
 
   public MovePlayer(direction: Vector3): void {
@@ -40,20 +192,26 @@ export class Player extends TransformNode {
     let ray = new Ray(start, end.subtract(start).normalizeToNew(), length);
 
     let predicate = function (mesh: Mesh) {
-      return mesh.isPickable && mesh.isEnabled();
+      return mesh.isPickable && mesh.name != "BoxCollider" && mesh.isEnabled();
     };
 
     let pick = this._scene.pickWithRay(ray, predicate);
-
+    // pick.getNormal();
     if (pick.hit) {
-      return pick.pickedPoint;
+      return pick;
     } else {
       return null;
     }
   }
 
   private _isGrounded(): boolean {
-    if (this.rayCast(this.position, Vector3.Down(), 1) != null) {
+    if (
+      this.rayCast(
+        this.position,
+        Vector3.Down(),
+        this.boxCollider._boundingInfo.boundingBox.extendSizeWorld.y / 2 + 1
+      ) != null
+    ) {
       return true;
     }
     return false;

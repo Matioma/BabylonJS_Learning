@@ -41,17 +41,21 @@ export class PlayerController {
 
   private processInput(): void {
     if (this.InputMap["ArrowUp"]) {
-      this._player.MovePlayer(new Vector3(0, 0, 10));
+      this._player.AddVelocity(new Vector3(0, 0, 10));
     }
     if (this.InputMap["ArrowDown"]) {
-      this._player.MovePlayer(new Vector3(0, 0, -10));
+      this._player.AddVelocity(new Vector3(0, 0, -10));
     }
 
     if (this.InputMap["ArrowLeft"]) {
-      this._player.MovePlayer(new Vector3(-10, 0, 0));
+      this._player.AddVelocity(new Vector3(-10, 0, 0));
     }
     if (this.InputMap["ArrowRight"]) {
-      this._player.MovePlayer(new Vector3(10, 0, 0));
+      this._player.AddVelocity(new Vector3(10, 0, 0));
+    }
+
+    if (this.InputMap[" "]) {
+      this._player.Jump();
     }
   }
 }

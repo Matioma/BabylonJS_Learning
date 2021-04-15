@@ -55,41 +55,49 @@ class Game {
   async _createScene(): Promise<Scene> {
     let scene: Scene = new Scene(this._engine);
 
-    // var camera: ArcRotateCamera = new ArcRotateCamera(
-    //   "Camera",
-    //   Math.PI / 2,
-    //   Math.PI / 2,
-    //   2,
-    //   Vector3.Zero(),
-    //   scene
-    // );
-    // camera.attachControl(this._canvas, true);
+    scene.collisionsEnabled = true;
 
     var light1: HemisphericLight = new HemisphericLight(
       "light1",
       new Vector3(1, 1, 0),
       scene
     );
-    var ground: Mesh = MeshBuilder.CreateGround(
+
+    var ground: Mesh = MeshBuilder.CreateBox(
       "Ground",
-      { width: 10, height: 10 },
+      { width: 50, height: 1, depth: 50 },
       scene
     );
+    ground.position.y = 0.5;
     ground.isPickable = true;
+    ground.checkCollisions = true;
+
+    var wall: Mesh = MeshBuilder.CreateBox(
+      "RightWall",
+      { width: 1, height: 10, depth: 10 },
+      scene
+    );
+    wall.position.x = 10;
+    wall.checkCollisions = true;
 
     await ResourseManager.LoadCharacterAssets(scene).then((mesh) => {
-      this._player = new Player(mesh, scene);
+      let boxCollider = MeshBuilder.CreateBox("BoxCollider", {
+        width: 1,
+        height: 1,
+        depth: 1,
+      });
+      boxCollider.visibility = 0;
+
+      this._player = new Player(mesh, scene, boxCollider);
 
       let camera = new MyFollowCamera(
         this._player,
         new Vector3(0, 2, -10),
         scene
       );
-      // camera.position = new Vector3(0, 2, -10);
     });
 
     this._playerController = new PlayerController(this._player, scene);
-
     return scene;
   }
 
