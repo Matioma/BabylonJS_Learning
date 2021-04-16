@@ -34,32 +34,14 @@ export class Player extends Mesh {
     this.visibility = 0;
     this.isPickable = true;
     this.checkCollisions = true;
-    // this.boxCollider = MeshBuilder.CreateBox(
-    //   "BoxCollider",
-    //   { width: 1, height: 1, depth: 1 },
-    //   scene
-    // );
-
-    //this;
-
-    // this.mesh = MeshBuilder.CreateBox(
-    //   "BoxCollider",
-    //   { width: 1, height: 1, depth: 1 },
-    //   scene
-    // );
-
-    // this.boxCollider.visibility = 1;
-    // this.boxCollider.isPickable = true;
-    // this.boxCollider.parent = this;
-
-    // this.boxCollider.ellipsoid = new Vector3(1, 1, 1);
-    // this.boxCollider.checkCollisions = true;
 
     this.mesh = assets;
     this.mesh.parent = this;
 
     this._scene.onBeforeRenderObservable.add(() => {
       this.updatePlayerPosition();
+
+      console.log(this._isGrounded());
     });
   }
 
@@ -75,43 +57,12 @@ export class Player extends Mesh {
       this.drag,
       this.drag
     );
-
-    // this.position = this.boxCollider.position.clone();
-    // this.boxCollider.position = Vector3.Zero();
-
     this.direction = Vector3.Zero();
-
-    // let raycastResult = this.rayCast(
-    //   this.position,
-    //   Vector3.Down(),
-    //   this.boxCollider._boundingInfo.boundingBox.extendSizeWorld.y / 2
-    // );
-
-    // if (raycastResult != null && this.velocity.y <= 0) {
-    //   let normal = raycastResult.getNormal();
-    //   if (this.boxCollider.intersectsMesh(raycastResult.pickedMesh)) {
-    //     this.boxCollider.position.addInPlace(normal);
-    //   }
-    //   this.velocity.y = 0;
-    //   console.log(this.position.y);
-    // }
-
-    // this.position = this.boxCollider.position;
-    // this.boxCollider.position = Vector3.Zero();
-
-    // console.log(this._isGrounded());
-    // if (this._isGrounded() && this.velocity.y < 0) {
-    //   this.velocity.y = 0;
-    // }
-
-    // this.boxCollider.moveWithCollisions(this.velocity);
-    // this.position = this.boxCollider.position;
-    // this.boxCollider.position = Vector3.Zero();
-
-    // this.position.addInPlace(this.velocity);
   }
 
   public Jump(): void {
+    if (!this._isGrounded()) return;
+
     this.velocity.addInPlace(
       Vector3.Up().multiplyByFloats(
         Player.JUMP_FORCE,
@@ -153,27 +104,6 @@ export class Player extends Mesh {
       0,
       XZPlaneVelocity.z
     );
-
-    // let addVelocity = direction
-    //   .normalizeToNew()
-    //   .multiplyByFloats(this.speed, this.speed, this.speed);
-
-    // this.velocity.addInPlace(addVelocity);
-
-    // let XZPlaneSpeed = new Vector3(this.velocity.x, 0, this.velocity.y);
-    // XZPlaneSpeed.normalize().multiplyByFloats(
-    //   this.speed,
-    //   this.speed,
-    //   this.speed
-    // );
-
-    // this.velocity = new Vector3(
-    //   XZPlaneSpeed.x,
-    //   this.velocity.y,
-    //   XZPlaneSpeed.z
-    // );
-
-    console.log(this.velocity);
   }
 
   public MovePlayer(direction: Vector3): void {
@@ -196,7 +126,8 @@ export class Player extends Mesh {
     };
 
     let pick = this._scene.pickWithRay(ray, predicate);
-    // pick.getNormal();
+    console.log(pick.pickedMesh.name);
+
     if (pick.hit) {
       return pick;
     } else {
@@ -205,11 +136,12 @@ export class Player extends Mesh {
   }
 
   private _isGrounded(): boolean {
+    // console.log(this._boundingInfo.boundingBox.extendSizeWorld.y / 2 + 1);
     if (
       this.rayCast(
         this.position,
         Vector3.Down(),
-        this.boxCollider._boundingInfo.boundingBox.extendSizeWorld.y / 2 + 1
+        this._boundingInfo.boundingBox.extendSizeWorld.y / 2 + 1
       ) != null
     ) {
       return true;
